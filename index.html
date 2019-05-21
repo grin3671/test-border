@@ -91,7 +91,7 @@
           return 'border-color: #' + this.image_border.substring(1);
         },
         link: function () {
-          return window.location.pathname + '?image_url=' + this.image_url + '&image_border=@' + this.image_border.substring(1);
+          return location.origin + location.pathname + '?image_url=' + this.image_url + '&image_border=@' + this.image_border.substring(1);
         },
       },
       mounted: function () {
@@ -99,7 +99,7 @@
             i,
             q = {};
 
-        queries = window.location.search.substring(1).split('&');
+        queries = location.search.substring(1).split('&');
         for (i = queries.length - 1; i >= 0; i--) {
           var pair = queries[i].split('=');
           q[pair[0]] = pair[1];
