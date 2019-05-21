@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <title>Тест рамки</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    article {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    input {
+      min-width: 280px;
+      padding: 4px;
+      font: inherit;
+    }
+
+    .b-input {
+      margin: 1em auto 2em;
+    }
+
+    .b-input > label,
+    .b-input > input {
+      display: block;
+    }
+
+    .preview {
+      position: relative;
+      display: inline-block;
+    }
+    .preview .border {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid #9da2a8;
+      box-sizing: border-box;
+      z-index: 1;
+    }
+    .preview img {
+      vertical-align: top;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <article id="app">
+    <header>
+      <h1>Тест рамки</h1>
+      <p>Страница для подбора рамки для ачивки</p>
+    </header>
+    <div class="b-input">
+      <label for="image_url">Url картинки</label>
+      <input id="image_url" type="" name="" v-model="image_url">
+    </div>
+    <div class="b-input">
+      <label for="image_border">Цвет рамки</label>
+      <input id="image_border" type="" name="" v-model="border_output">
+    </div>
+    <div class="b-input">
+      <label for="link">Ссылка</label>
+      <input id="link" type="" name="" v-model="link" disabled style="width: 100%">
+    </div>
+    <div>
+      <div class="preview">
+        <div class="border" :style="border_style"></div>
+        <img :src="image_url">
+      </div>
+    </div>
+  </article>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        image_url: 'https://i.imgur.com/srZEPSA.jpg',
+        image_border: '#4c8880',
+      },
+      computed: {
+        border_output: {
+          get: function () {
+            return '#' + this.image_border.substring(1);
+          },
+          set: function (value) {
+            this.image_border = value;
+          }
+        },
+        border_style: function () {
+          return 'border-color: #' + this.image_border.substring(1);
+        },
+        link: function () {
+          return window.location.pathname + '?image_url=' + this.image_url + '&image_border=@' + this.image_border.substring(1);
+        },
+      },
+      mounted: function () {
+        var queries,
+            i,
+            q = {};
+
+        queries = window.location.search.substring(1).split('&');
+        for (i = queries.length - 1; i >= 0; i--) {
+          var pair = queries[i].split('=');
+          q[pair[0]] = pair[1];
+        }
+        
+        if (q.hasOwnProperty('image_url')) this.image_url = q.image_url;
+        if (q.hasOwnProperty('image_border')) this.image_border = q.image_border;
+      }
+    });
+  </script>
+</body>
+</html>
