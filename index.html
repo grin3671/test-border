@@ -8,6 +8,7 @@
     body {
       padding: 15px;
       margin: 0;
+      font-family: sans-serif;
     }
 
     article {
@@ -15,11 +16,20 @@
       margin: auto;
     }
 
+    canvas,
+    img {
+      max-width: 100%;
+    }
+
     input {
       min-width: 280px;
       padding: 4px;
       box-sizing: border-box;
       font: inherit;
+    }
+
+    .hidden {
+      display: none;
     }
 
     .b-input {
@@ -32,8 +42,10 @@
     }
 
     .preview {
-      position: relative;
       display: inline-block;
+      vertical-align: top;
+      position: relative;
+      max-width: 500px;
     }
     .preview .border {
       position: absolute;
@@ -77,6 +89,12 @@
         <img :src="image_url">
       </div>
     </div>
+    <div :class="{ hidden: image_type == 'image/gif' }">
+      <p>Картинка c рамкой для скачивания (не работает с gif):</p>
+      <div class="preview">
+        <canvas id="canvas" width="500" height="250"></canvas>
+      </div>
+    </div>
   </article>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.min.js"></script>
   <script>
@@ -85,6 +103,7 @@
       data: {
         image_url: 'https://i.imgur.com/srZEPSA.jpg',
         image_border: '#4c8880',
+        image_type: 'image/jpeg',
       },
       computed: {
         border_output: {
@@ -115,8 +134,45 @@
         
         if (q.hasOwnProperty('image_url')) this.image_url = q.image_url;
         if (q.hasOwnProperty('image_border')) this.image_border = q.image_border;
+      },
+      methods: {
+        updateCanvas: function (image, border) {
+          var can = document.getElementById('canvas');
+          var ctx = can.getContext('2d');
+          ctx.clearRect(0, 0, can.width, can.height);
+
+          var img = new Image();
+          img.onload = function () {
+            can.width = img.width;
+            can.height = img.height;
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 6;
+            ctx.strokeRect(0, 0, img.width, img.height);
+
+            function getImgContentType (img) {
+              var xhr = new XMLHttpRequest();
+              xhr.open('HEAD', img.src, true);
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState != 4) return;
+                if (xhr.status == 200) {
+                  app.image_type = xhr.getResponseHeader('Content-Type');
+                }
+              };
+              xhr.send();
+            };
+            getImgContentType(img);
+          };
+          img.src = image;
+        },
       }
     });
+    app.$watch(
+      function () {
+        this.updateCanvas(this.image_url, this.border_output);
+      },
+    );
   </script>
 </body>
 </html>
